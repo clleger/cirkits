@@ -12,12 +12,12 @@ def get_level_3(widget):
     else:
         layout = widget
     input1 = ToggleInput("Input 1")#, size_hint=(0.2, 0.2), pos_hint={'x':50, 'y':300})
-    input1.size = (60, 150)
+    input1.size = (50, 200)
     input1.center = (100, 500)
     layout.add_widget(input1)
     
-    input2 = ToggleInput("Input 2", size=(60, 150))#, pos_hint={'x':50, 'y':100})
-    # input2.size = (60, 150)
+    input2 = ToggleInput("Input 2", size=(60, 150), center=(100, 200))#{'x':70, 'y':125})
+    input2.size = (50, 200)
     input2.center = (100, 200)
     layout.add_widget(input2)
     

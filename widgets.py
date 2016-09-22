@@ -89,9 +89,9 @@ class ToggleInput(GridLayout, boolean.MutableBooleanInput):
         layout.rows = 3
 
         self.desc = desc
-        self.led = Image(source=self.led_source, size_hint=(1, .15))
+        self.led = Image(source=self.led_source, size_hint=(1, .2))
 
-        self.button = ToggleButton(size_hint=(.1,.65))
+        self.button = ToggleButton(size_hint=(.1,.6))
         self.button.input = self
         self.button.background_normal='resources/off.png'
         self.button.background_down='resources/on.png'
@@ -104,7 +104,7 @@ class ToggleInput(GridLayout, boolean.MutableBooleanInput):
             button.input.update_value(None, not new_val, new_val)
 
         self.button.bind(state=state_callback)
-        label = EditableLabel(size_hint=(1,.1))
+        label = EditableLabel(size_hint=(1,.2))
         label.text = desc
 
         layout.add_widget(self.led)

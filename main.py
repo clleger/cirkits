@@ -27,8 +27,6 @@ from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
 import boolean, Screens
 
 
-# presentation = Builder.load_file("cirkitbuilder.kv")
-
 class CirkitGame(Widget):
     pass
 
@@ -61,13 +59,20 @@ class CirkitBuilderApp(App):
         for i in range(25-len(levels)):
             menu.levels.add_widget(Button())
 
-    def build(self):
+    def build_single_level(self):
         game = CirkitGame()
         Levels.get_level_3(game)
         return game
-        # self.load_levels(presentation)
-        # # Clock.schedule_interval(game.update, 1.0 / 60.0)
-        # return presentation
+
+    def build_multi_level(self):
+        presentation = Builder.load_file("cirkitbuilder.kv")
+
+        self.load_levels(presentation)
+        # Clock.schedule_interval(game.update, 1.0 / 60.0)
+        return presentation
+
+    def build(self):
+        return self.build_single_level()
 
 
 if __name__ == "__main__":
