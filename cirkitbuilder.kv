@@ -8,16 +8,27 @@ ScreenManagement:
 
 <MenuScreen>:
     name: 'menu'
+    id: 'menu'
+    levels: levels
+    size: 960,640
 
-    Button:
-        on_release:
-            app.root.transition.direction = 'left'
-            app.root.current = "cirkit"
-        text: 'Level 3'
-        font_size: 50
+    BoxLayout:
+        orientation: 'vertical'
+        rows: 2
+
+        Label:
+            text: "Application for Fundamentals of Digital Logic"
+            size_hint: 1, .25
+        GridLayout:
+            cols: 5
+            rows: 5
+            size_hint: .2, .8
+            id: levels
 
 <CirkitScreen>:
     name: 'cirkit'
+    id: 'cirkit'
+    size: 960,640
 
     FloatLayout:
         Button:
@@ -28,6 +39,7 @@ ScreenManagement:
                 app.root.transition.direction = 'right'
                 app.root.current = "menu"
             pos_hint: {"right":1, "bottom":1}
+            text: 'Back'
 
 
 <CirkitGame>:
