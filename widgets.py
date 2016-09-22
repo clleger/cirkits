@@ -1,4 +1,7 @@
+import kivy
 from kivy.config import Config
+from kivy.uix.floatlayout import FloatLayout
+
 Config.set('graphics', 'width', '960')
 Config.set('graphics', 'height', '640')
 
@@ -75,19 +78,20 @@ class ToggleInput(GridLayout, boolean.MutableBooleanInput):
     def __init__(self, desc, **kwargs):
         super(ToggleInput, self).__init__(**kwargs)
 
-        if True:
+        if kivy.uix.layout.Layout in self.__class__.mro():
             layout = self
         else:
-            layout = BoxLayout(spacing=10, orientation='vertical', rows=3)
+            layout = BoxLayout(spacing=10, orientation='vertical', rows=3, size_hint=(1,1))
             self.add_widget(layout)
         layout.spacing = 10
         layout.orientation = 'vertical'
+        # layout.cols = 1
         layout.rows = 3
 
         self.desc = desc
         self.led = Image(source=self.led_source, size_hint=(1, .15))
 
-        self.button = ToggleButton(size_hint=(1,.065))
+        self.button = ToggleButton(size_hint=(.1,.65))
         self.button.input = self
         self.button.background_normal='resources/off.png'
         self.button.background_down='resources/on.png'
