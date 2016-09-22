@@ -1,6 +1,7 @@
 from kivy.config import Config
 Config.set('graphics', 'width', '960')
 Config.set('graphics', 'height', '640')
+Config.set('graphics', 'resizable', False)
 
 from kivy.lang import Builder
 from kivy.uix.floatlayout import FloatLayout
@@ -40,9 +41,9 @@ class CirkitBuilderApp(App):
         for func in levels:
             def load_level(*args):
                 pres.transition.direction = 'left'
-                cirkit.clear_widgets()
-                Levels.__dict__[func](cirkit)
+                # cirkit.clear_widgets()
                 fl = FloatLayout()
+                Levels.__dict__[func](fl)
                 back_button = Button(color=(0,1,0,1), font_size=25, size_hint=(0.3,0.2), text="Main Menu",
                                      pos_hint={"right":1, "bottom":1})
                 def main_screen(*args):
@@ -72,7 +73,7 @@ class CirkitBuilderApp(App):
         return presentation
 
     def build(self):
-        return self.build_single_level()
+        return self.build_multi_level()
 
 
 if __name__ == "__main__":
