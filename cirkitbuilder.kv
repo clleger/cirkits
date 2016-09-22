@@ -1,0 +1,36 @@
+#:kivy 1.0.9
+#: import FadeTransition kivy.uix.screenmanager.FadeTransition
+
+ScreenManagement:
+#    transition: FadeTransition()
+    MenuScreen:
+    CirkitScreen:
+
+<MenuScreen>:
+    name: 'menu'
+
+    Button:
+        on_release:
+            app.root.transition.direction = 'left'
+            app.root.current = "cirkit"
+        text: 'Level 3'
+        font_size: 50
+
+<CirkitScreen>:
+    name: 'cirkit'
+
+    FloatLayout:
+        Button:
+            color: 0,1,0,1
+            font_size: 25
+            size_hint: 0.3,0.2
+            on_release:
+                app.root.transition.direction = 'right'
+                app.root.current = "menu"
+            pos_hint: {"right":1, "bottom":1}
+
+
+<CirkitGame>:
+    size: 960,640
+    canvas:
+
