@@ -1,12 +1,13 @@
 from kivy.config import Config
+Config.set('graphics', 'width', '960')
+Config.set('graphics', 'height', '640')
+
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 
 from cirkits.EditableLabel import EditableLabel
-
-Config.set('graphics', 'width', '960')
-Config.set('graphics', 'height', '640')
 
 from kivy.app import App
 from kivy.uix.button import Button
@@ -53,7 +54,7 @@ class BooleanOutput(GridLayout, boolean.BooleanOutput):
         self.led = Image(source=self.led_source, size_hint=(.75, .75))
         self.add_widget(self.led)
 
-        label = EditableLabel(size_hint=(.25,.25))
+        label = EditableLabel(size_hint=(1,.25))
         label.text = desc
         self.add_widget(label)
 
@@ -72,14 +73,21 @@ class ToggleInput(GridLayout, boolean.MutableBooleanInput):
     led_source = StringProperty('resources/LED_off.png')
 
     def __init__(self, desc, **kwargs):
-        GridLayout.__init__(self, **kwargs)
-        boolean.MutableBooleanInput.__init__(self)
-        self.cols = 1
-        self.rows = 3
+        super(ToggleInput, self).__init__(**kwargs)
+
+        if True:
+            layout = self
+        else:
+            layout = BoxLayout(spacing=10, orientation='vertical', rows=3)
+            self.add_widget(layout)
+        layout.spacing = 10
+        layout.orientation = 'vertical'
+        layout.rows = 3
+
         self.desc = desc
-        self.led = Image(source=self.led_source, size_hint=(.15, .15))
-        self.add_widget(self.led)
-        self.button = ToggleButton(size_hint=(.65,.65))
+        self.led = Image(source=self.led_source, size_hint=(1, .15))
+
+        self.button = ToggleButton(size_hint=(1,.065))
         self.button.input = self
         self.button.background_normal='resources/off.png'
         self.button.background_down='resources/on.png'
@@ -92,10 +100,12 @@ class ToggleInput(GridLayout, boolean.MutableBooleanInput):
             button.input.update_value(None, not new_val, new_val)
 
         self.button.bind(state=state_callback)
-        self.add_widget(self.button)
-        label = EditableLabel(size_hint=(.2,.2))
+        label = EditableLabel(size_hint=(1,.1))
         label.text = desc
-        self.add_widget(label)
+
+        layout.add_widget(self.led)
+        layout.add_widget(self.button)
+        layout.add_widget(label)
 
     def update_value(self, input, old_val, new_val):
         super(boolean.MutableBooleanInput, self).update_value(input, old_val, new_val)
