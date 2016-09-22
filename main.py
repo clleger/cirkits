@@ -38,7 +38,7 @@ class CirkitBuilderApp(App):
 
         levels = filter(lambda x: x.startswith('get_level_'), Levels.__dict__)
 
-        for func in levels:
+        for func in sorted(levels):
             def close_func(func=func):
                 def load_level(*args):
                     pres.transition.direction = 'left'
@@ -56,7 +56,7 @@ class CirkitBuilderApp(App):
                     pres.current = 'cirkit'
                 return load_level
             lvl_name = func[len('get_level_'):]
-            lbutton = Button(text="Level %s" % lvl_name, font_size=50)
+            lbutton = Button(text="Level %s" % lvl_name, font_size=40)
             lbutton.bind(on_release=close_func())
             menu.levels.add_widget(lbutton)
         for i in range(25-len(levels)):

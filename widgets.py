@@ -41,6 +41,7 @@ class Wire(Line):
 
 
     def state_callback(self, input, old_val, new_val):
+        if new_val == old_val: return
         if new_val:
             self.color.s = self.color.s - .3
         else:
