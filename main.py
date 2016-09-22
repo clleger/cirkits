@@ -39,23 +39,25 @@ class CirkitBuilderApp(App):
         levels = filter(lambda x: x.startswith('get_level_'), Levels.__dict__)
 
         for func in levels:
-            def load_level(*args):
-                pres.transition.direction = 'left'
-                # cirkit.clear_widgets()
-                fl = FloatLayout()
-                Levels.__dict__[func](fl)
-                back_button = Button(color=(0,1,0,1), font_size=25, size_hint=(0.3,0.2), text="Main Menu",
-                                     pos_hint={"right":1, "bottom":1})
-                def main_screen(*args):
-                    pres.transition.direction = 'right'
-                    pres.current = 'menu'
-                back_button.bind(on_release=main_screen)
-                fl.add_widget(back_button)
-                cirkit.add_widget(fl)
-                pres.current = 'cirkit'
+            def close_func(func=func):
+                def load_level(*args):
+                    pres.transition.direction = 'left'
+                    cirkit.clear_widgets()
+                    fl = FloatLayout()
+                    Levels.__dict__[func](fl)
+                    back_button = Button(color=(0,1,0,1), font_size=25, size_hint=(0.3,0.2), text="Main Menu",
+                                         pos_hint={"right":1, "bottom":1})
+                    def main_screen(*args):
+                        pres.transition.direction = 'right'
+                        pres.current = 'menu'
+                    back_button.bind(on_release=main_screen)
+                    fl.add_widget(back_button)
+                    cirkit.add_widget(fl)
+                    pres.current = 'cirkit'
+                return load_level
             lvl_name = func[len('get_level_'):]
             lbutton = Button(text="Level %s" % lvl_name, font_size=50)
-            lbutton.bind(on_release=load_level)
+            lbutton.bind(on_release=close_func())
             menu.levels.add_widget(lbutton)
         for i in range(25-len(levels)):
             menu.levels.add_widget(Button())
