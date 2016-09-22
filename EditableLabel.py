@@ -31,10 +31,11 @@ class EditableLabel(Label):
         t.bind(on_text_validate=self.on_text_validate, focus=self.on_text_focus)
 
     def on_text_validate(self, instance):
-        self.text = instance.text
-        self.edit = False
+        if instance.text:
+            self.text = instance.text
+            self.edit = False
 
     def on_text_focus(self, instance, focus):
-        if focus is False:
+        if focus is False and instance.text:
             self.text = instance.text
             self.edit = False
