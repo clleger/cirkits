@@ -10,7 +10,7 @@ from kivy.uix.image import Image
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 
-from cirkits.EditableLabel import EditableLabel
+from EditableLabel import EditableLabel
 
 from kivy.app import App
 from kivy.uix.button import Button
@@ -23,7 +23,7 @@ from kivy.vector import Vector
 from kivy.clock import Clock
 from kivy.graphics import Line, Color
 
-from cirkits import boolean
+import boolean
 
 class AndGate(Widget):
     pass

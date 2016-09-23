@@ -9,8 +9,7 @@ from kivy.uix.image import Image
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 
-from cirkits.EditableLabel import EditableLabel
-import cirkits.Levels as Levels
+import Levels
 
 from kivy.app import App
 from kivy.uix.button import Button

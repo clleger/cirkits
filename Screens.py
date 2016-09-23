@@ -4,8 +4,6 @@ from kivy.uix.label import Label
 from kivy.uix.screenmanager import ScreenManager, FadeTransition, Screen
 from kivy.uix.textinput import TextInput
 
-from cirkits.EditableLabel import EditableLabel
-
 Config.set('graphics', 'width', '960')
 Config.set('graphics', 'height', '640')
 
@@ -19,9 +17,6 @@ from kivy.properties import NumericProperty, ReferenceListProperty, \
 from kivy.vector import Vector
 from kivy.clock import Clock
 from kivy.graphics import Line, Color
-
-from cirkits import boolean, Levels
-
 
 class ScreenManagement(ScreenManager):
     pass
