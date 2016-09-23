@@ -2,8 +2,8 @@ from kivy.uix.button import Button
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.scatterlayout import ScatterLayout
 
-from cirkits import boolean
-from cirkits.widgets import BooleanOutput, ToggleInput, Wire, BGate
+import boolean
+from widgets import BooleanOutput, ToggleInput, Wire, BGate
 from kivy.graphics import Line, Color
 
 def create_binary_level(operation):
