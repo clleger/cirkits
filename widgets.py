@@ -80,7 +80,7 @@ class TruthTable(Widget):
         self.op_source = op_source
 
 
-def get_visualization_of_gate(op):
+def get_visualization_of_bgate(op):
     images = {
         boolean.AND_BGATE.operation:Image(source='resources/AND_BGATE.png'),
         boolean.NAND_BGATE.operation:Image(source='resources/NAND_BGATE.png'),
@@ -88,6 +88,16 @@ def get_visualization_of_gate(op):
         boolean.NOR_BGATE.operation: Image(source='resources/NOR_BGATE.png'),
         boolean.XOR_BGATE.operation: Image(source='resources/XOR_BGATE.png'),
         boolean.XNOR_BGATE.operation: Image(source='resources/XNOR_BGATE.png'),
+    }
+    result = images.get(op.operation)
+    if not result:
+         result = Label(text=str(op.__class__.__name__).split('.')[-1], font_size=20)
+    return result
+
+def get_visualization_of_ugate(op):
+    images = {
+        boolean.BUFFER_UGATE.operation:Image(source='resources/BUFFER_UGATE.png'),
+        boolean.INVERTER_UGATE.operation:Image(source='resources/INVERTER_UGATE.png'),
     }
     result = images.get(op.operation)
     if not result:
@@ -109,7 +119,7 @@ class BGate(BoxLayout):
 
         self.ttable = TruthTable(self, size_hint=(1, .25))
         self.led = Image(source=self.led_source, size_hint=(1, .2))
-        self.gate = get_visualization_of_gate(op)
+        self.gate = get_visualization_of_bgate(op)
         self.gate.size_hint = (1, 0.55)
 
         self.add_widget(self.ttable)
@@ -117,6 +127,7 @@ class BGate(BoxLayout):
         self.add_widget(self.gate)
 
         op.callbacks.append(self.update_value)
+        self.update_value(op, None, bool(op))
 
     def update_value(self, op, old_val, new_val):
         if new_val:
@@ -124,6 +135,44 @@ class BGate(BoxLayout):
         else:
             self.led_source = 'resources/LED_off.png'
         self.led.source = self.led_source
+
+    def set_output(self, out):
+        self.op.set_output(out)
+
+class UGate(BoxLayout):
+    led_source = StringProperty('resources/LED_off.png')
+
+    def __init__(self, op, **kwargs):
+        super(UGate, self).__init__(**kwargs)
+
+        self.op = op
+
+        self.spacing = 0
+        self.orientation = 'vertical'
+        # layout.cols = 1
+        self.rows = 3
+
+        self.ttable = TruthTable(self, size_hint=(1, .25))
+        self.led = Image(source=self.led_source, size_hint=(1, .2))
+        self.gate = get_visualization_of_ugate(op)
+        self.gate.size_hint = (1, 0.55)
+
+        self.add_widget(self.ttable)
+        self.add_widget(self.led)
+        self.add_widget(self.gate)
+
+        op.callbacks.append(self.update_value)
+        self.update_value(op, None, bool(op))
+
+    def update_value(self, op, old_val, new_val):
+        if new_val:
+            self.led_source = 'resources/LED_on.png'
+        else:
+            self.led_source = 'resources/LED_off.png'
+        self.led.source = self.led_source
+
+    def set_output(self, out):
+        self.op.set_output(out)
 
 
 class ToggleInput(GridLayout, boolean.MutableBooleanInput):

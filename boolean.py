@@ -66,15 +66,18 @@ class BooleanOutput(object):
 
 class BooleanLogicGate(object):
     def __init__(self, input0=None, input1=None, output=None):
+        self.callbacks = []
         self.input0 = input0
         self.input1 = input1
         self.lookup_table = tuple(bool(int(x)) for x in '{0:04b}'.format(self.operation))
-        self.output = output
         if (input0 is not None):
             self.input0.set_output(self)
         if (input1 is not None):
             self.input1.set_output(self)
-        self.callbacks = []
+        self.set_output(output)
+
+    def set_output(self, output):
+        self.output = output
         if (output is not None):
             self.callbacks.append(self.output.update_value)
 
@@ -143,21 +146,37 @@ class NAND_BGATE(BooleanLogicGate):
 class TRUE_BGATE(BooleanLogicGate):
     operation = 15
 
-def UnaryLogicGate(operation):
+def UnaryLogicGate(op):
     class UnaryLogicGate(object):
+        operation = op
         def __init__(self, input = None, output = None):
+            self.callbacks = []
             self.input = input
             if (input is not None):
                 self.input.set_output(self)
-            self.output = output
-            self.lookup_table = tuple(bool(int(x)) for x in '{0:02b}'.format(operation))
+            self.lookup_table = tuple(bool(int(x)) for x in '{0:02b}'.format(op))
+            self.set_output(output)
 
         def update_value(self, input, old_val, new_val):
+            print "Updating my (%s) value to %s" % (self, new_val)
             if self.output is not None:
                 old1 = bool(self.input)
                 if input == self.input:
                     old1 = old_val
-                self.output.update_value(self, self(old1), bool(self))
+                for cb in self.callbacks:
+                    cb(self, self(old1), bool(self))
+
+        def set_output(self, output):
+            print "Adding my (%s) output to %s" % (self, output)
+            self.output = output
+            if (output is not None):
+                self.callbacks.append(self.output.update_value)
+
+        def disconnect(self, input_param):
+            pass
+
+        def connect(self, input_param):
+            pass
 
         def __str__(self):
             return "%s[%s]" % (type(self), id(self))
