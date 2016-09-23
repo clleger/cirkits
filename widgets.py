@@ -30,22 +30,23 @@ class AndGate(Widget):
 
 
 class Wire(Line):
-    def __init__(self, source, sink, color, **kwargs):
+    def __init__(self, input_source, sink, color, **kwargs):
         super(Wire, self).__init__(**kwargs)
         print self
-        self.source = source
+        self.input_source = input_source
         self.sink = sink
         self.color = color
-        source.callbacks.append(self.state_callback)
+        input_source.callbacks.append(self.state_callback)
 
 
 
     def state_callback(self, input, old_val, new_val):
         if new_val == old_val: return
         if new_val:
-            self.color.s = self.color.s - .3
+            self.color.v = self.color.v*3
         else:
-            self.color.s = self.color.s + .3
+            self.color.v = self.color.v/3
+
 
 class BooleanOutput(GridLayout, boolean.BooleanOutput):
     led_source = StringProperty('resources/LED_off.png')
@@ -73,6 +74,58 @@ class BooleanOutput(GridLayout, boolean.BooleanOutput):
         self.led.source = self.led_source
 
 
+class TruthTable(Widget):
+    def __init__(self, op_source, **kwargs):
+        super(TruthTable, self).__init__(**kwargs)
+        self.op_source = op_source
+
+
+def get_visualization_of_gate(op):
+    images = {
+        boolean.AND_BGATE.operation:Image(source='resources/AND_BGATE.png'),
+        boolean.NAND_BGATE.operation:Image(source='resources/NAND_BGATE.png'),
+        boolean.OR_BGATE.operation:Image(source='resources/OR_BGATE.png'),
+        boolean.NOR_BGATE.operation: Image(source='resources/NOR_BGATE.png'),
+        boolean.XOR_BGATE.operation: Image(source='resources/XOR_BGATE.png'),
+        boolean.XNOR_BGATE.operation: Image(source='resources/XNOR_BGATE.png'),
+    }
+    result = images.get(op.operation)
+    if not result:
+         result = Label(text=str(op.__class__.__name__).split('.')[-1], font_size=20)
+    return result
+
+class BGate(BoxLayout):
+    led_source = StringProperty('resources/LED_off.png')
+
+    def __init__(self, op, **kwargs):
+        super(BGate, self).__init__(**kwargs)
+
+        self.op = op
+
+        self.spacing = 0
+        self.orientation = 'vertical'
+        # layout.cols = 1
+        self.rows = 3
+
+        self.ttable = TruthTable(self, size_hint=(1, .25))
+        self.led = Image(source=self.led_source, size_hint=(1, .2))
+        self.gate = get_visualization_of_gate(op)
+        self.gate.size_hint = (1, 0.55)
+
+        self.add_widget(self.ttable)
+        self.add_widget(self.led)
+        self.add_widget(self.gate)
+
+        op.callbacks.append(self.update_value)
+
+    def update_value(self, op, old_val, new_val):
+        if new_val:
+            self.led_source = 'resources/LED_on.png'
+        else:
+            self.led_source = 'resources/LED_off.png'
+        self.led.source = self.led_source
+
+
 class ToggleInput(GridLayout, boolean.MutableBooleanInput):
     led_source = StringProperty('resources/LED_off.png')
 
@@ -84,7 +137,7 @@ class ToggleInput(GridLayout, boolean.MutableBooleanInput):
         else:
             layout = BoxLayout(spacing=10, orientation='vertical', rows=3, size_hint=(1,1))
             self.add_widget(layout)
-        layout.spacing = 10
+        layout.spacing = 0
         layout.orientation = 'vertical'
         # layout.cols = 1
         layout.rows = 3
@@ -102,7 +155,7 @@ class ToggleInput(GridLayout, boolean.MutableBooleanInput):
                 new_val = True
             elif value == 'normal':
                 new_val = False
-            button.input.update_value(None, not new_val, new_val)
+            button.input.set_value(new_val)
 
         self.button.bind(state=state_callback)
         label = EditableLabel(size_hint=(1,.2))
@@ -112,13 +165,17 @@ class ToggleInput(GridLayout, boolean.MutableBooleanInput):
         layout.add_widget(self.button)
         layout.add_widget(label)
 
+    # def set_value(self, new_val):
+    #     self.button.state = 'down' if new_val else 'normal'
+
     def update_value(self, input, old_val, new_val):
         super(boolean.MutableBooleanInput, self).update_value(input, old_val, new_val)
         if new_val:
             self.led_source = 'resources/LED_on.png'
         else:
             self.led_source = 'resources/LED_off.png'
-        self.led.source = self.led_source
+        if hasattr(self, 'led'):
+            self.led.source = self.led_source
 
     def __bool__(self):
         button = getattr(self, 'button', None)
@@ -127,9 +184,4 @@ class ToggleInput(GridLayout, boolean.MutableBooleanInput):
         else:
             return False
     __nonzero__ = __bool__
-
-
-class BGate(Widget):
-    def __init__(self, in1, in2, out, op, **kwargs):
-        super(BGate, self).__init__(**kwargs)
 
