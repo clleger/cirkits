@@ -9,11 +9,12 @@ __all__ = ('EditableLabel', )
 class EditableLabel(Label):
 
     edit = BooleanProperty(False)
+    editable = True
 
     textinput = ObjectProperty(None, allownone=True)
 
     def on_touch_down(self, touch):
-        if self.collide_point(*touch.pos) and not self.edit:
+        if self.collide_point(*touch.pos) and not self.edit and self.editable:
             self.edit = True
         return super(EditableLabel, self).on_touch_down(touch)
 

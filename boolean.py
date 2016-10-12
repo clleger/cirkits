@@ -9,9 +9,9 @@ class BooleanInput(object):
         self.set_output(output)
 
     def set_output(self, new_output):
-        if self.output is not None:
-            self.output.disconnect(self)
-            self.callbacks.remove(self.output.update_value)
+        # if self.output is not None:
+        #     self.output.disconnect(self)
+        #     self.callbacks.remove(self.output.update_value)
         self.output = new_output
         if self.output is not None:
             self.output.connect(self)
@@ -53,6 +53,9 @@ class BooleanOutput(object):
     def update_value(self, input, old_val, new_val):
         print "%s new value is %s (old value was %s)" % (self, bool(new_val), bool(old_val))
 
+    def connect(self, input):
+        self.input = input
+
     def __str__(self):
         return "%s[%s]" % (type(self), id(self))
 
@@ -69,6 +72,7 @@ class BooleanLogicGate(object):
         self.callbacks = []
         self.input0 = input0
         self.input1 = input1
+        self.outputs = set()
         self.lookup_table = tuple(bool(int(x)) for x in '{0:04b}'.format(self.operation))
         if (input0 is not None):
             self.input0.set_output(self)
@@ -76,6 +80,10 @@ class BooleanLogicGate(object):
             self.input1.set_output(self)
         self.set_output(output)
 
+    def add_output(self, output):
+        return self.outputs.add(output)
+    def remove_output(self, output):
+        return self.outputs.remove(output)
     def set_output(self, output):
         self.output = output
         if (output is not None):
@@ -194,6 +202,20 @@ FALSE_UGATE = UnaryLogicGate(0)
 BUFFER_UGATE = UnaryLogicGate(1)
 INVERTER_UGATE = UnaryLogicGate(2)
 TRUE_UGATE = UnaryLogicGate(3)
+
+def digit_to_char(digit):
+    if digit < 10: return chr(ord('0') + digit)
+    else: return chr(ord('a') + digit - 10)
+
+def str_base(number,base):
+    if number < 0:
+        return '-' + str_base(-number,base)
+    else:
+        (d,m) = divmod(number,base)
+        if d:
+            return str_base(d,base) + digit_to_char(m)
+        else:
+            return digit_to_char(m)
 
 def exercise():
     output = BooleanOutput()
