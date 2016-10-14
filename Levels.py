@@ -388,7 +388,7 @@ def get_level_N2(widget):
     display = NumberDisplay("Display", size_hint=(200. / 960, 100. / 640), center=(300, 320), rows=3)
     widget.add_widget(display)
 
-    base = ToggleInput("bin/dec", size_hint=(25. / 960, 80. / 640), center=(250, 220), rows=3)
+    base = ToggleInput("bin/dec", size_hint=(25. / 960, 80. / 640), center=(200, 320), rows=3)
     widget.add_widget(base)
     base.button.state = 'down' if base_default else 'normal'
 
@@ -403,40 +403,39 @@ def get_level_N2(widget):
     with widget.canvas:
         line_width = 2.
 
-        # c1 = Color(0, 0.9, 0.3 if not output1 else 0.9, mode='hsv')
-        # line_1G = Wire(output1, display, c1, points=(163, 460), width=line_width, joint='round')
-        # line_1G.points += [163, 400]
-        # line_1G.points += [265, 400]
-        # line_1G.points += [265, 380]
-        #
-        # c1 = Color(0, 0.9, 0.3 if not output2 else 0.9, mode='hsv')
-        # line_1G = Wire(output2, display, c1, points=(263, 460), width=line_width, joint='round')
-        # line_1G.points += [263, 415]
-        # line_1G.points += [305, 415]
-        # line_1G.points += [305, 380]
-        #
-        # c1 = Color(0, 0.9, 0.3 if not output3 else 0.9, mode='hsv')
-        # line_1G = Wire(output3, display, c1, points=(363, 460), width=line_width, joint='round')
-        # line_1G.points += [363, 430]
-        # line_1G.points += [345, 430]
-        # line_1G.points += [345, 380]
-        #
-        # c1 = Color(0, 0.9, 0.3 if not output4 else 0.9, mode='hsv')
-        # line_1G = Wire(output4, display, c1, points=(463, 460), width=line_width, joint='round')
-        # line_1G.points += [463, 415]
-        # line_1G.points += [385, 415]
-        # line_1G.points += [385, 380]
-        #
-        # c1 = Color(0, 0.9, 0.3 if not output5 else 0.9, mode='hsv')
-        # line_1G = Wire(output5, display, c1, points=(563, 460), width=line_width, joint='round')
-        # line_1G.points += [563, 400]
-        # line_1G.points += [425, 400]
-        # line_1G.points += [425, 380]
-        #
-        # c2 = Color(4. / 7, 0.9, 0.3 if not base else 0.9, mode='hsv')
-        # line_2G = Wire(base, display.base_in, c2, points=(213, 260), width=line_width, joint='round')
-        # line_2G.points += [213, 300]
-        # line_2G.points += [243, 300]
+        c1 = Color(0, 0.9, 0.3 if not output1 else 0.9, mode='hsv')
+        line_1G = Wire(display, output1, c1, points=(265, 280), width=line_width, joint='round')
+        line_1G.points += [265, 250]
+        line_1G.points += [163, 250]
+        line_1G.points += [163, 150]
+
+        c1 = Color(0, 0.9, 0.3 if not output1 else 0.9, mode='hsv')
+        line_1G = Wire(display, output2, c1, points=(305, 280), width=line_width, joint='round')
+        line_1G.points += [305, 235]
+        line_1G.points += [263, 235]
+        line_1G.points += [263, 150]
+
+        c1 = Color(0, 0.9, 0.3 if not output1 else 0.9, mode='hsv')
+        line_1G = Wire(display, output3, c1, points=(345, 280), width=line_width, joint='round')
+        line_1G.points += [345, 220]
+        line_1G.points += [363, 220]
+        line_1G.points += [363, 150]
+
+        c1 = Color(0, 0.9, 0.3 if not output1 else 0.9, mode='hsv')
+        line_1G = Wire(display, output4, c1, points=(385, 280), width=line_width, joint='round')
+        line_1G.points += [385, 235]
+        line_1G.points += [463, 235]
+        line_1G.points += [463, 150]
+
+        c1 = Color(0, 0.9, 0.3 if not output1 else 0.9, mode='hsv')
+        line_1G = Wire(display, output5, c1, points=(425, 280), width=line_width, joint='round')
+        line_1G.points += [425, 250]
+        line_1G.points += [563, 250]
+        line_1G.points += [563, 150]
+
+        c2 = Color(4. / 7, 0.9, 0.3 if not base else 0.9, mode='hsv')
+        line_2G = Wire(base, display.base_in, c2, points=(243, 300), width=line_width, joint='round')
+        line_2G.points += [183, 300]
 
 
 # __all__ = (get_level_2, get_level_3)
