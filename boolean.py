@@ -217,6 +217,18 @@ def str_base(number,base):
         else:
             return digit_to_char(m)
 
+def base_to_str(base):
+    base_names = {
+        1: "unary",
+        2: "binary",
+        3: "ternary",
+        4: "quaternary",
+        8: "octal",
+        10: "decimal",
+        16: "hexadecimal",
+    }
+    return base_names.get(base, "unknown")
+
 def exercise():
     output = BooleanOutput()
     input0 = MutableBooleanInput()

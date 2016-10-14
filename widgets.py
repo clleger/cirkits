@@ -15,6 +15,7 @@ from kivy.uix.textinput import TextInput
 from EditableLabel import EditableLabel
 from BorderBehavior import BorderBehavior
 import LabelB
+import math
 
 from kivy.app import App
 from kivy.uix.button import Button
@@ -179,37 +180,54 @@ class UGate(BoxLayout):
         self.op.set_output(out)
 
 class NumberDisplay(GridLayout, BorderBehavior, boolean.MutableBooleanInput, boolean.BooleanOutput):
+    int_value = NumericProperty(0)
+
     def __init__(self, desc, **kwargs):
         super(NumberDisplay, self).__init__(**kwargs)
+        self.base = 10
+
         if kivy.uix.layout.Layout in self.__class__.mro():
             layout = self
         else:
             layout = BoxLayout(spacing=10, orientation='vertical', rows=3, size_hint=(1,1))
             self.add_widget(layout)
         self.borders = (1, 'solid', (1, 1, 1, 1))
-        self.display = EditableLabel(size_hint=(1, 0.75), font='roboto mono', bcolor=(0,1,0,1), halign='right',
-                                     font_size=48, )
+        self.display = EditableLabel(size_hint=(1, 0.75), font_name='DroidSansMono', bcolor=(0,1,0,1), halign='right',
+                                     font_size=68, )
+        # self.display.font_name = 'DroidSansMono'
 
-        def on_text_validate(self, instance):
+        def on_text_validate(instance):
             if instance.text:
-                self.text = instance.text
-                self.edit = False
+                print "Being called now with input '{}'".format(instance.text)
+                try:
+                    int_value = int(instance.text, self.base)
+                    print "testing int value '{}'".format(int_value)
+                    print len(self.outputs)
+                    if 0 <= int_value < 2**len(self.outputs):
+                        print "setting int_value to {}".format(int_value)
+                        self.int_value = int_value
+                except:
+                    pass
+                self.update_value(self.int_value)
+                self.display.edit = False
 
         self.display.on_text_validate = on_text_validate
         self.display.bcolor = (0, 0.7, 0, 1)
         self.display.color = (1, 0.2, 0.2, 1)
         self.display.text = "0"
+        self.display.strip = False
         self.inputs = []
         self.outputs = []
         layout.add_widget(self.display)
 
-        label = EditableLabel(size_hint=(1, .2))
-        label.text = desc
-        layout.add_widget(label)
-
-        self.base = 10
         self.base_in = boolean.BooleanOutput()
         self.base_in.update_value = self.update_base
+
+        label = EditableLabel(size_hint=(1, .2))
+        self.desc = desc
+        self.label = label
+        self.label.text = "{} ({})".format(desc, boolean.base_to_str(self.base))
+        layout.add_widget(label)
 
     def on_size(self, instance, value):
         self.draw_display_background()
@@ -230,9 +248,11 @@ class NumberDisplay(GridLayout, BorderBehavior, boolean.MutableBooleanInput, boo
     def connect(self, input):
         self.inputs.append(input)
         self.display.editable = not self.inputs
+        self.display.text = self.get_value_string(0)
 
     def disconnect(self, input):
         self.inputs.remove(input)
+        self.display.text = self.get_value_string(0)
         self.display.editable = not self.inputs
 
     def add_output(self, output):
@@ -243,20 +263,32 @@ class NumberDisplay(GridLayout, BorderBehavior, boolean.MutableBooleanInput, boo
         self.outputs.remove(output)
         self.display.editable = not self.inputs
 
+    def get_value_string(self, value):
+        value_str = boolean.str_base(value, self.base)
+        min_size = len(self.inputs)
+        padding = " "
+        if (self.base == 2):
+            padding = "0"
+        value_str = padding * (min_size - len(value_str)) + value_str
+        return value_str
+
     def update_value(self, *args):
-        value = int(self)
+        self.int_value = value = int(self)
         for output in getattr(self, 'outputs', []):
-            output.update_value(self, bool(value & 1))
+            output.update_value(self, False, bool(value & 1))
             value = value / 2
         if hasattr(self, 'display'):
-            self.display.text = boolean.str_base(value, self.base)
+            self.display.text = self.get_value_string(value)
 
     def update_base(self, input, old_val, new_val):
         self.base = 10 if new_val else 2
         self.update_value(None, old_val, new_val)
+        self.label.text = "{} ({})".format(self.desc, boolean.base_to_str(self.base))
 
     def __int__(self):
         value = 0
+        if not getattr(self, 'inputs', None):
+            return self.int_value
         for input in getattr(self, 'inputs', []):
             value = value * 2 + int(bool(input))
         return value
