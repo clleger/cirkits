@@ -14,7 +14,6 @@ from kivy.uix.textinput import TextInput
 
 from EditableLabel import EditableLabel
 from BorderBehavior import BorderBehavior
-import LabelB
 import math
 
 from kivy.app import App
@@ -46,6 +45,7 @@ class Wire(Line):
 
 
     def state_callback(self, input, old_val, new_val):
+
         if new_val == old_val: return
         if new_val:
             self.color.v = self.color.v*3
@@ -64,19 +64,22 @@ class BooleanOutput(GridLayout, boolean.BooleanOutput):
         self.led = Image(source=self.led_source, size_hint=(.75, .75))
         self.add_widget(self.led)
 
-        label = EditableLabel(size_hint=(1,.25))
+        self.label = label = EditableLabel(size_hint=(1,.25))
         label.text = desc
         self.add_widget(label)
 
 
     def update_value(self, input, old_val, new_val):
         boolean.BooleanOutput.update_value(self, input, old_val, new_val)
-        print "And I'm here"
+        # print "Updating output {}".format(self.label.text)
         if new_val:
             self.led_source = 'resources/LED_on.png'
         else:
             self.led_source = 'resources/LED_off.png'
         self.led.source = self.led_source
+
+    def __str__(self):
+        return "Mutable Output ({})".format(getattr(self,'desc','Untitled'))
 
 
 class TruthTable(Widget):
@@ -96,7 +99,7 @@ def get_visualization_of_bgate(op):
     }
     result = images.get(op.operation)
     if not result:
-         result = Label(text=str(op.__class__.__name__).split('.')[-1], font_size=20)
+         result = Label(text=boolean.get_name_of_bgate(op.operation), font_size=20)
     return result
 
 def get_visualization_of_ugate(op):
@@ -106,7 +109,7 @@ def get_visualization_of_ugate(op):
     }
     result = images.get(op.operation)
     if not result:
-         result = Label(text=str(op.__class__.__name__).split('.')[-1], font_size=20)
+         result = Label(text=boolean.get_name_of_ugate(op.operation), font_size=20)
     return result
 
 class BGate(BoxLayout):
@@ -133,6 +136,14 @@ class BGate(BoxLayout):
 
         op.callbacks.append(self.update_value)
         self.update_value(op, None, bool(op))
+
+    def on_touch_down(self, touch):
+        if self.collide_point(*touch.pos):
+            self.op._update_table((self.op.operation+1) % 16)
+            self.remove_widget(self.gate)
+            self.gate = get_visualization_of_bgate(self.op)
+            self.add_widget(self.gate)
+        return super(BGate, self).on_touch_down(touch)
 
     def update_value(self, op, old_val, new_val):
         if new_val:
@@ -179,12 +190,37 @@ class UGate(BoxLayout):
     def set_output(self, out):
         self.op.set_output(out)
 
-class NumberDisplay(GridLayout, BorderBehavior, boolean.MutableBooleanInput, boolean.BooleanOutput):
+class NumberDisplay(GridLayout, BorderBehavior):
     int_value = NumericProperty(0)
 
-    def __init__(self, desc, **kwargs):
-        super(NumberDisplay, self).__init__(**kwargs)
+    class NumberBit(boolean.MutableBooleanInput, boolean.BooleanOutput):
+        def __init__(self, owner, index):
+            self.owner = owner
+            self.index = index
+
+            boolean.MutableBooleanInput.__init__(self)
+            boolean.BooleanOutput.__init__(self)
+
+            self.callbacks.append(self.owner.update_value)
+
+        # From BooleanOutput
+        def connect(self, input):
+            boolean.BooleanOutput.connect(self, input)
+            self.owner.connect(input, self.index)
+
+        # From BooleanOutput
+        def disconnect(self, input):
+            boolean.BooleanOutput.disconnect(self, input)
+            self.owner.disconnect(input, self.index)
+
+        def __str__(self):
+            return "{}.{}".format(self.owner, self.index)
+
+    def __init__(self, bits_in, desc, **kwargs):
         self.base = 10
+        self.num_bits = bits_in
+
+        super(NumberDisplay, self).__init__(**kwargs)
 
         if kivy.uix.layout.Layout in self.__class__.mro():
             layout = self
@@ -194,30 +230,34 @@ class NumberDisplay(GridLayout, BorderBehavior, boolean.MutableBooleanInput, boo
         self.borders = (1, 'solid', (1, 1, 1, 1))
         self.display = EditableLabel(size_hint=(1, 0.75), font_name='DroidSansMono', bcolor=(0,1,0,1), halign='right',
                                      font_size=68, )
-        # self.display.font_name = 'DroidSansMono'
 
         def on_text_validate(instance):
             if instance.text:
-                print "Being called now with input '{}'".format(instance.text)
+                # print "Being called now with input '{}'".format(instance.text)
+                print 'Old display text was "{}"'.format(self.display.text)
                 try:
+                    prev_value = int(self)
                     int_value = int(instance.text, self.base)
                     print "testing int value '{}'".format(int_value)
-                    print len(self.outputs)
-                    if 0 <= int_value < 2**len(self.outputs):
+                    if 0 <= int_value < 2**self.num_bits:
                         print "setting int_value to {}".format(int_value)
                         self.int_value = int_value
                 except:
                     pass
-                self.update_value(self.int_value)
+                self.update_value(self.display, prev_value, self.int_value)
                 self.display.edit = False
+                self.display.text = self.get_value_string(int(self))
+                print 'New display text is  "{}"'.format(self.display.text)
+        def cancel(instance, focus):
+            if not focus: self.display.edit = False
 
         self.display.on_text_validate = on_text_validate
-        self.display.bcolor = (0, 0.7, 0, 1)
+        self.display.on_text_focus = cancel
+        # self.display.bcolor = (0, 0.7, 0, 1)
         self.display.color = (1, 0.2, 0.2, 1)
-        self.display.text = "0"
+        self.display.text = self.get_value_string(0)
         self.display.strip = False
-        self.inputs = []
-        self.outputs = []
+        self.bits = [self.NumberBit(self, x) for x in range(self.num_bits)]
         layout.add_widget(self.display)
 
         self.base_in = boolean.BooleanOutput()
@@ -230,55 +270,62 @@ class NumberDisplay(GridLayout, BorderBehavior, boolean.MutableBooleanInput, boo
         layout.add_widget(label)
 
     def on_size(self, instance, value):
-        self.draw_display_background()
+        self.draw_display_background(instance)
     on_pos = on_size
 
-    def draw_display_background(self):
+
+    def render(self):
+        self.canvas.clear()
+        self.canvas.add(Color(0.33, 1, 0.3, mode='hsv'))
+
+    def draw_display_background(self, display):
         if not hasattr(self, 'display'): return
-        with self.display.canvas.before:
+        display.canvas.before.clear()
+        with display.canvas.before:
+            num_width = 40
             Color(0.33, 1, 0.3, mode='hsv')
-            print "Calling display background for pos %s and size %s" % (self.display.pos, self.display.size)
-            Rectangle(pos=(self.display.pos), size=(self.display.width*2, self.display.height))
+            print "Calling display background for pos %s and size %s" % (display.pos, display.size)
+            width = display.width if True else num_width * self.num_bits
+            Rectangle(pos=(display.pos), size=(width, display.height))
             Color(0, 0, 0)
-            for x in xrange(int(self.display.x),int(self.display.x+self.display.width*2),int(self.display.width*2./5)):
-                print "Drawing new line from (%d,%d) - (%d,%d)" % (x, self.display.y, x, self.display.y+self.display.height)
-                Line(width=5, points=((x, self.display.y), (x, self.display.y + self.display.height)))
-                Rectangle(pos=(x, self.display.y), size=(1, self.display.height))
+            stride = num_width #int(self.display.width*2./5)
+            for x in xrange(int(display.x),int(display.x+width),stride):
+                print "Drawing new line from (%d,%d) - (%d,%d)" % (x, display.y, x, display.y+display.height)
+                Line(width=5, points=((x, display.y), (x, display.y + display.height)))
+                Rectangle(pos=(x, display.y), size=(1, display.height))
 
-    def connect(self, input):
-        self.inputs.append(input)
-        self.display.editable = not self.inputs
-        self.display.text = self.get_value_string(0)
+    def connect(self, input, index):
+        # TODO: Ultimately I want the text field to be able to edit any bits that aren't fixed
+        # self.display.editable = not self.inputs
+        self.display.text = self.get_value_string(int(self))
 
-    def disconnect(self, input):
-        self.inputs.remove(input)
-        self.display.text = self.get_value_string(0)
-        self.display.editable = not self.inputs
-
-    def add_output(self, output):
-        self.outputs.append(output)
-        self.display.editable = not self.inputs
-
-    def remove_output(self, output):
-        self.outputs.remove(output)
-        self.display.editable = not self.inputs
+    def disconnect(self, input, index):
+        # TODO: Ultimately I want the text field to be able to edit any bits that aren't fixed
+        # self.display.editable = not self.inputs
+        self.display.text = self.get_value_string(int(self))
 
     def get_value_string(self, value):
         value_str = boolean.str_base(value, self.base)
-        min_size = len(self.inputs)
+        min_size = self.num_bits
         padding = " "
         if (self.base == 2):
             padding = "0"
         value_str = padding * (min_size - len(value_str)) + value_str
         return value_str
 
-    def update_value(self, *args):
-        self.int_value = value = int(self)
-        for output in getattr(self, 'outputs', []):
-            output.update_value(self, False, bool(value & 1))
-            value = value / 2
-        if hasattr(self, 'display'):
-            self.display.text = self.get_value_string(value)
+    def update_value(self, input, old_val, new_val):
+        disp = getattr(self, 'display', None)
+        if disp and input is disp:
+            old_bin = '{:0>{bits}}'.format(bin(old_val)[2:], bits=self.num_bits)
+            new_bin = '{:0>{bits}}'.format(bin(new_val)[2:], bits=self.num_bits)
+            for (bit,old_bit,new_bit) in zip(reversed(self.bits),old_bin,new_bin):
+                bit.update_value(self, bool(int(old_bit)), bool(int(new_bit)))
+        else:
+            old_val = self.int_value
+            new_val = int(self)
+
+        if disp:
+            disp.text = self.get_value_string(new_val)
 
     def update_base(self, input, old_val, new_val):
         self.base = 10 if new_val else 2
@@ -287,11 +334,15 @@ class NumberDisplay(GridLayout, BorderBehavior, boolean.MutableBooleanInput, boo
 
     def __int__(self):
         value = 0
-        if not getattr(self, 'inputs', None):
+        if not getattr(self, 'bits', None):
             return self.int_value
-        for input in getattr(self, 'inputs', []):
+        for input in reversed(getattr(self, 'bits', [])):
             value = value * 2 + int(bool(input))
         return value
+
+    def __str__(self):
+        return "Numeric Display ({})".format(getattr(self,'desc','Untitled'))
+
 
 class ToggleInput(GridLayout, boolean.MutableBooleanInput):
     led_source = StringProperty('resources/LED_off.png')
@@ -351,4 +402,8 @@ class ToggleInput(GridLayout, boolean.MutableBooleanInput):
         else:
             return False
     __nonzero__ = __bool__
+
+    def __str__(self):
+        return "Toggle Input ({})".format(getattr(self,'desc','Untitled'))
+
 

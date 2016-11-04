@@ -8,6 +8,11 @@ class BooleanInput(object):
         self.set_value(initial_value)
         self.set_output(output)
 
+    def clear_output(self, old_output):
+        if old_output is not None and self.output == old_output:
+            self.output.disconnect(self)
+            self.callbacks.remove(self.output.update_value)
+
     def set_output(self, new_output):
         # if self.output is not None:
         #     self.output.disconnect(self)
@@ -18,7 +23,8 @@ class BooleanInput(object):
             self.callbacks.append(self.output.update_value)
 
     def update_value(self, input, old_val, new_val):
-        print "input is being updated"
+        # print "input of {} is being updated".format(self)
+        self.value = new_val
         for callback in self.callbacks:
             callback(input, old_val, new_val)
         if self.output is not None:
@@ -33,7 +39,7 @@ class BooleanInput(object):
 
 class MutableBooleanInput(BooleanInput):
     def set_value(self, new_value):
-        print "%s is being set to %s" % (self, bool(new_value))
+        # print "%s is being set to %s" % (self, bool(new_value))
         prev_value = bool(self.value)
         self.value = new_value
         # if bool(new_value) != bool(prev_value):
@@ -51,7 +57,8 @@ class BooleanOutput(object):
         self.input = input
 
     def update_value(self, input, old_val, new_val):
-        print "%s new value is %s (old value was %s)" % (self, bool(new_val), bool(old_val))
+        # print "%s new value is %s (old value was %s)" % (self, bool(new_val), bool(old_val))
+        pass
 
     def connect(self, input):
         self.input = input
@@ -80,6 +87,13 @@ class BooleanLogicGate(object):
             self.input1.set_output(self)
         self.set_output(output)
 
+    def _update_table(self, operation):
+        old_val = bool(self)
+        self.operation = operation
+        self.lookup_table = tuple(bool(int(x)) for x in '{0:04b}'.format(self.operation))
+        new_val = bool(self)
+        self.update_value(None, old_val, new_val)
+
     def add_output(self, output):
         return self.outputs.add(output)
     def remove_output(self, output):
@@ -107,7 +121,7 @@ class BooleanLogicGate(object):
                 cb(self, self(old1, old2), bool(self))
 
     def __str__(self):
-        return "%s[%s]" % (type(self), id(self))
+        return "%s[%s]" % (get_name_of_bgate(self.operation), id(self))
 
     def __call__(self, input0, input1):
         return self.lookup_table[(int(bool(input0)) << 1 | int(bool(input1)))]
@@ -117,10 +131,6 @@ class BooleanLogicGate(object):
 
     __nonzero__ = __bool__
 
-class FALSE_BGATE(BooleanLogicGate):
-    operation = 0
-class AND_BGATE(BooleanLogicGate):
-    operation = 1
 class FALSE_BGATE(BooleanLogicGate):
     operation = 0
 class AND_BGATE(BooleanLogicGate):
@@ -153,6 +163,27 @@ class NAND_BGATE(BooleanLogicGate):
     operation = 14
 class TRUE_BGATE(BooleanLogicGate):
     operation = 15
+
+binop_name_map = {
+    0:"FALSE",
+    1:"AND",
+    2:"CONV_NONIMP",
+    3:"INPUT0",
+    4:"NONIMPLY",
+    5:"INPUT1",
+    6:"XOR",
+    7:"OR",
+    8:"NOR",
+    9:"XNOR",
+    10:"~INPUT1",
+    11:"CONV_IMPLY",
+    12:"~INPUT0",
+    13:"->",
+    14:"NAND",
+    15:"TRUE",
+}
+def get_name_of_bgate(operation):
+    return binop_name_map.get(operation, "UNKNOWN")
 
 def UnaryLogicGate(op):
     class UnaryLogicGate(object):

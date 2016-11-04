@@ -297,18 +297,19 @@ def get_level_N1(widget):
     widget.add_widget(input5)
     input5.button.state = 'down' if input5_default else 'normal'
 
-    display = NumberDisplay("Display", size_hint=(200. / 960, 100. / 640), center=(300, 320), rows=3)
+    display = NumberDisplay(5, "Display", size_hint=(200. / 960, 100. / 640), center=(300, 320), rows=3)
+    display.display.editable = False
     widget.add_widget(display)
 
     base = ToggleInput("bin/dec", size_hint=(25. / 960, 80. / 640), center=(250, 220), rows=3)
     widget.add_widget(base)
     base.button.state = 'down' if base_default else 'normal'
 
-    input1.set_output(display)
-    input2.set_output(display)
-    input3.set_output(display)
-    input4.set_output(display)
-    input5.set_output(display)
+    input5.set_output(display.bits[0])
+    input4.set_output(display.bits[1])
+    input3.set_output(display.bits[2])
+    input2.set_output(display.bits[3])
+    input1.set_output(display.bits[4])
 
     base.set_output(display.base_in)
 
@@ -385,18 +386,18 @@ def get_level_N2(widget):
     output5 = BooleanOutput("1", size_hint=(25. / 960, 80. / 640), center = (600, 140))
     widget.add_widget(output5)
 
-    display = NumberDisplay("Display", size_hint=(200. / 960, 100. / 640), center=(300, 320), rows=3)
+    display = NumberDisplay(5, "Display", size_hint=(200. / 960, 100. / 640), center=(300, 320), rows=3)
     widget.add_widget(display)
 
     base = ToggleInput("bin/dec", size_hint=(25. / 960, 80. / 640), center=(200, 320), rows=3)
     widget.add_widget(base)
     base.button.state = 'down' if base_default else 'normal'
 
-    display.add_output(output5)
-    display.add_output(output4)
-    display.add_output(output3)
-    display.add_output(output2)
-    display.add_output(output1)
+    display.bits[0].set_output(output5)
+    display.bits[1].set_output(output4)
+    display.bits[2].set_output(output3)
+    display.bits[3].set_output(output2)
+    display.bits[4].set_output(output1)
 
     base.set_output(display.base_in)
 
@@ -404,38 +405,153 @@ def get_level_N2(widget):
         line_width = 2.
 
         c1 = Color(0, 0.9, 0.3 if not output1 else 0.9, mode='hsv')
-        line_1G = Wire(display, output1, c1, points=(265, 280), width=line_width, joint='round')
+        line_1G = Wire(display.bits[4], output1, c1, points=(265, 270), width=line_width, joint='round')
         line_1G.points += [265, 250]
         line_1G.points += [163, 250]
-        line_1G.points += [163, 150]
+        line_1G.points += [163, 160]
 
         c1 = Color(0, 0.9, 0.3 if not output1 else 0.9, mode='hsv')
-        line_1G = Wire(display, output2, c1, points=(305, 280), width=line_width, joint='round')
+        line_1G = Wire(display.bits[3], output2, c1, points=(305, 270), width=line_width, joint='round')
         line_1G.points += [305, 235]
         line_1G.points += [263, 235]
-        line_1G.points += [263, 150]
+        line_1G.points += [263, 160]
 
         c1 = Color(0, 0.9, 0.3 if not output1 else 0.9, mode='hsv')
-        line_1G = Wire(display, output3, c1, points=(345, 280), width=line_width, joint='round')
+        line_1G = Wire(display.bits[2], output3, c1, points=(345, 270), width=line_width, joint='round')
         line_1G.points += [345, 220]
         line_1G.points += [363, 220]
-        line_1G.points += [363, 150]
+        line_1G.points += [363, 160]
 
         c1 = Color(0, 0.9, 0.3 if not output1 else 0.9, mode='hsv')
-        line_1G = Wire(display, output4, c1, points=(385, 280), width=line_width, joint='round')
+        line_1G = Wire(display.bits[1], output4, c1, points=(385, 270), width=line_width, joint='round')
         line_1G.points += [385, 235]
         line_1G.points += [463, 235]
-        line_1G.points += [463, 150]
+        line_1G.points += [463, 160]
 
         c1 = Color(0, 0.9, 0.3 if not output1 else 0.9, mode='hsv')
-        line_1G = Wire(display, output5, c1, points=(425, 280), width=line_width, joint='round')
+        line_1G = Wire(display.bits[0], output5, c1, points=(425, 270), width=line_width, joint='round')
         line_1G.points += [425, 250]
         line_1G.points += [563, 250]
-        line_1G.points += [563, 150]
+        line_1G.points += [563, 160]
 
         c2 = Color(4. / 7, 0.9, 0.3 if not base else 0.9, mode='hsv')
         line_2G = Wire(base, display.base_in, c2, points=(243, 300), width=line_width, joint='round')
         line_2G.points += [183, 300]
 
+def get_level_ADD1(widget):
+    base_default = True
+
+    input1_default = False
+    input2_default = False
+    input3_default = False
+    input4_default = False
+    input5_default = False
+    base_default = True
+
+    input1 = ToggleInput("1", size_hint=(25. / 960, 80. / 640), center=(200, 520))
+    widget.add_widget(input1)
+    input1.button.state = 'down' if input1_default else 'normal'
+
+    input2 = ToggleInput("1", size_hint=(25. / 960, 80. / 640), center=(200, 320))
+    widget.add_widget(input2)
+    input2.button.state = 'down' if input2_default else 'normal'
+
+
+    display = NumberDisplay(5, "Display", size_hint=(200. / 960, 100. / 640), center=(600, 400), rows=3)
+    display.display.editable = False
+    widget.add_widget(display)
+
+    base = ToggleInput("bin/dec", size_hint=(25. / 960, 80. / 640), center=(860, 400), rows=3)
+    widget.add_widget(base)
+    base.button.state = 'down' if base_default else 'normal'
+
+    op = boolean.AND_BGATE(input1, input2, None)
+    gate = BGate(op, size_hint=(100. / 960, 80. / 640))
+    gate.center = (400, 360)
+    widget.add_widget(gate)
+
+    op2 = boolean.XOR_BGATE(input1, input2, None)
+    gate2 = BGate(op2, size_hint=(100. / 960, 80. / 640))
+    gate2.center = (400, 540)
+    widget.add_widget(gate2)
+
+    op2.set_output(display.bits[0])
+    op.set_output(display.bits[1])
+
+    base.set_output(display.base_in)
+
+    # def on_touch_down(self, touch):
+    #     if self.collide_point(*touch.pos):
+    #         widget.remove_widget(self)
+    #         new_op = boolean.BooleanLogicGate(self.op.input0, self.op.input1, self.op.output)
+    #         self.op.input0.
+    #         self.op._update_table((self.op.operation+1) % 16)
+    #         self.remove_widget(self.gate)
+    #         self.gate = get_visualization_of_bgate(self.op)
+    #         self.add_widget(self.gate)
+    #     return super(BGate, self).on_touch_down(touch)
+
+    # output1 = BooleanOutput("2", size_hint=(25. / 960, 80. / 640), center=(500, 140))
+    # widget.add_widget(output1)
+    #
+    # output2 = BooleanOutput("1", size_hint=(25. / 960, 80. / 640), center=(600, 140))
+    # widget.add_widget(output2)
+    #
+    # display = NumberDisplay(2, "Display", size_hint=(200. / 960, 100. / 640), center=(300, 320), rows=3)
+    # widget.add_widget(display)
+    #
+    # base = ToggleInput("bin/dec", size_hint=(25. / 960, 80. / 640), center=(200, 320), rows=3)
+    # widget.add_widget(base)
+    # base.button.state = 'down' if base_default else 'normal'
+    #
+    # display.bits[0].set_output(output2)
+    # display.bits[1].set_output(output1)
+
+    base.set_output(display.base_in)
+
+    with widget.canvas:
+        line_width = 2.
+
+        c1 = Color(0, 0.9, 0.3 if not input1 else 0.9, mode='hsv')
+        line_1G = Wire(input1, gate, c1, points=(215, 520), width=line_width, joint='round')
+        line_1G.points += [350, 520]
+
+        c1 = Color(0, 0.9, 0.3 if not input1 else 0.9, mode='hsv')
+        line_1G = Wire(input1, gate2, c1, points=(215, 520), width=line_width, joint='round')
+        line_1G.points += [255, 520]
+        line_1G.points += [255, 340]
+        line_1G.points += [350, 340]
+
+        c1 = Color(5. / 7, 0.9, 0.3 if not input2 else 0.9, mode='hsv')
+        line_1G = Wire(input2, gate, c1, points=(215, 320), width=line_width, joint='round')
+        line_1G.points += [350, 320]
+
+        c1 = Color(5. / 7, 0.9, 0.3 if not input2 else 0.9, mode='hsv')
+        line_1G = Wire(input2, gate2, c1, points=(215, 320), width=line_width, joint='round')
+        line_1G.points += [235, 320]
+        line_1G.points += [235, 500]
+        line_1G.points += [350, 500]
+
+        c2 = Color(4. / 7, 0.4, 0.3 if not op else 0.9, mode='hsv')
+        line_2G = Wire(op, display.bits[0], c2, points=(435, 330), width=line_width, joint='round')
+        line_2G.points += [485, 330]
+        line_2G.points += [485, 500]
+        line_2G.points += [690, 500]
+        line_2G.points += [690, 480]
+
+        c2 = Color(4. / 7, 0.4, 0.3 if not op2 else 0.9, mode='hsv')
+        line_2G = Wire(op2, display.bits[1], c2, points=(435, 510), width=line_width, joint='round')
+        line_2G.points += [730, 510]
+        line_2G.points += [730, 480]
+
+        # c1 = Color(0, 0.9, 0.3 if not output1 else 0.9, mode='hsv')
+        # line_1G = Wire(display.bits[0], output5, c1, points=(425, 270), width=line_width, joint='round')
+        # line_1G.points += [425, 250]
+        # line_1G.points += [563, 250]
+        # line_1G.points += [563, 160]
+        #
+        # c2 = Color(4. / 7, 0.9, 0.3 if not base else 0.9, mode='hsv')
+        # line_2G = Wire(base, display.base_in, c2, points=(243, 300), width=line_width, joint='round')
+        # line_2G.points += [183, 300]
 
 # __all__ = (get_level_2, get_level_3)
