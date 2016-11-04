@@ -39,6 +39,6 @@ class EditableLabel(Label):
             self.edit = False
 
     def on_text_focus(self, instance, focus):
-        if focus is False and instance.text:
-            self.text = instance.text
+        if focus is False:
+            # self.text = instance.text
             self.edit = False
