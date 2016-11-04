@@ -1,5 +1,6 @@
 #!python
 
+from kivy import clock
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.properties import BooleanProperty, ObjectProperty
@@ -30,6 +31,7 @@ class EditableLabel(Label):
         self.bind(pos=t.setter('pos'), size=t.setter('size'))
         self.add_widget(self.textinput)
         t.bind(on_text_validate=self.on_text_validate, focus=self.on_text_focus)
+        clock.Clock.schedule_once(lambda dt: t.select_all())
 
     def on_text_validate(self, instance):
         if instance.text:
