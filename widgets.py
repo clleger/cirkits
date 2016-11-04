@@ -1,6 +1,7 @@
 import kivy
 from kivy.config import Config
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.popup import Popup
 
 from kivy.graphics.vertex_instructions import Rectangle
 
@@ -34,18 +35,16 @@ class AndGate(Widget):
 
 
 class Wire(Line):
+
     def __init__(self, input_source, sink, color, **kwargs):
         super(Wire, self).__init__(**kwargs)
-        print self
         self.input_source = input_source
         self.sink = sink
         self.color = color
         input_source.callbacks.append(self.state_callback)
 
 
-
     def state_callback(self, input, old_val, new_val):
-
         if new_val == old_val: return
         if new_val:
             self.color.v = self.color.v*3
@@ -121,6 +120,7 @@ class BGate(BoxLayout):
         self.op = op
 
         self.spacing = 0
+        self.replaceable = False
         self.orientation = 'vertical'
         # layout.cols = 1
         self.rows = 3
@@ -138,11 +138,37 @@ class BGate(BoxLayout):
         self.update_value(op, None, bool(op))
 
     def on_touch_down(self, touch):
-        if self.collide_point(*touch.pos):
-            self.op._update_table((self.op.operation+1) % 16)
-            self.remove_widget(self.gate)
-            self.gate = get_visualization_of_bgate(self.op)
-            self.add_widget(self.gate)
+        if self.replaceable and self.collide_point(*touch.pos):
+            chooser = GridLayout(rows=4, cols=4, size_hint=(1,1))
+            dummy = type("dummy", (object,), dict(operation=None))
+            popup = Popup(title='Replace gate', content=chooser,
+                          #auto_dismiss=False,
+                          size_hint=(0.4, 0.4), center=(self.center))
+            for op in range(16):
+                dummy.operation = op
+                widget = get_visualization_of_bgate(dummy)
+                button = Button(size_hint=(1,1), text=boolean.get_name_of_bgate(op))
+                layout = FloatLayout()
+                layout.add_widget(widget)
+                widget.pos_hint = {"center_x":0.5, "center_y":0.5}
+                button.add_widget(layout)
+                chooser.add_widget(button)
+                # def update(*largs, **kwargs):
+                #     print "Updating size/pos of operation %d" % op
+                #     widget.size = button.size
+                #     widget.center = button.center
+                # button.on_pos = button.on_size = update
+                def choose_op(op=op, *largs):
+                    self.op._update_table(op)
+                    self.remove_widget(self.gate)
+                    self.gate = get_visualization_of_bgate(self.op)
+                    self.gate.size_hint = (1, 0.55)
+                    self.add_widget(self.gate)
+                    popup.dismiss(force=True)
+                button.on_press = choose_op
+            popup.attach_to = self
+            popup.open()
+
         return super(BGate, self).on_touch_down(touch)
 
     def update_value(self, op, old_val, new_val):

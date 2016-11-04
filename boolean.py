@@ -1,5 +1,3 @@
-import sys
-
 class BooleanInput(object):
     def __init__(self, initial_value = False, output = None):
         self.value = None
@@ -92,7 +90,7 @@ class BooleanLogicGate(object):
         self.operation = operation
         self.lookup_table = tuple(bool(int(x)) for x in '{0:04b}'.format(self.operation))
         new_val = bool(self)
-        self.update_value(None, old_val, new_val)
+        self.update_value(self, old_val, new_val)
 
     def add_output(self, output):
         return self.outputs.add(output)
@@ -117,8 +115,10 @@ class BooleanLogicGate(object):
                 old1 = old_val
             if input == self.input1:
                 old2 = old_val
-            for cb in self.callbacks:
-                cb(self, self(old1, old2), bool(self))
+            if input is not self:
+                old_val = self(old1, old2)
+        for cb in self.callbacks:
+            cb(self, old_val, bool(self))
 
     def __str__(self):
         return "%s[%s]" % (get_name_of_bgate(self.operation), id(self))
