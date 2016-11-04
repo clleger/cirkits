@@ -549,8 +549,6 @@ def get_level_FA1(widget):
     input2_default = False
     input3_default = False
 
-    base_default = True
-
     input1 = ToggleInput("A", size_hint=(25. / 960, 80. / 640), center=(100, 520))
     widget.add_widget(input1)
     input1.button.state = 'down' if input1_default else 'normal'
@@ -561,7 +559,7 @@ def get_level_FA1(widget):
 
     input3 = ToggleInput("C_in", size_hint=(25. / 960, 80. / 640), center=(280, 600))
     widget.add_widget(input3)
-    input3.button.state = 'down' if input1_default else 'normal'
+    input3.button.state = 'down' if input3_default else 'normal'
 
     display = NumberDisplay(5, "Display", size_hint=(200. / 960, 100. / 640), center=(600, 400), rows=3)
     display.display.editable = False
@@ -587,7 +585,7 @@ def get_level_FA1(widget):
     widget.add_widget(carry_gate)
 
     carry_op2 = boolean.AND_BGATE(input3, sum_op, None)
-    carry_gate2 = BGate(carry_op2, size_hint=(100. / 960, 80. / 640), center = (350, 470))
+    carry_gate2 = BGate(carry_op2, size_hint=(100. / 960, 80. / 640), center = (360, 480))
     carry_gate2.replaceable = True
     widget.add_widget(carry_gate2)
 
@@ -599,27 +597,9 @@ def get_level_FA1(widget):
     sum_op2.set_output(display.bits[0])
     carry_op3.set_output(display.bits[1])
 
-    carry_out = BooleanOutput("C_out", size_hint=(25. / 960, 80. / 640), center = (600, 240))
+    carry_out = BooleanOutput("C_out", size_hint=(25. / 960, 80. / 640), center = (800, 240))
     carry_op3.set_output(carry_out)
     widget.add_widget(carry_out)
-
-    base.set_output(display.base_in)
-
-    # output1 = BooleanOutput("2", size_hint=(25. / 960, 80. / 640), center=(500, 140))
-    # widget.add_widget(output1)
-    #
-    # output2 = BooleanOutput("1", size_hint=(25. / 960, 80. / 640), center=(600, 140))
-    # widget.add_widget(output2)
-    #
-    # display = NumberDisplay(2, "Display", size_hint=(200. / 960, 100. / 640), center=(300, 320), rows=3)
-    # widget.add_widget(display)
-    #
-    # base = ToggleInput("bin/dec", size_hint=(25. / 960, 80. / 640), center=(200, 320), rows=3)
-    # widget.add_widget(base)
-    # base.button.state = 'down' if base_default else 'normal'
-    #
-    # display.bits[0].set_output(output2)
-    # display.bits[1].set_output(output1)
 
     base.set_output(display.base_in)
 
@@ -646,26 +626,148 @@ def get_level_FA1(widget):
         line_1G.points += [135, 500]
         line_1G.points += [175, 500]
 
-        c2 = Color(4. / 7, 0.4, 0.3 if not carry_op else 0.9, mode='hsv')
+        c1 = Color(2. / 7, 0.4, 0.3 if not sum_op else 0.9, mode='hsv')
+        line_1G = Wire(sum_op, sum_gate2, c1, points=(260, 510), width=line_width, joint='round')
+        line_1G.points += [330, 510]
+        line_1G.points += [330, 500]
+        line_1G.points += [400, 500]
+
+        c2 = Color(2. / 7, 0.4, 0.3 if not carry_op2 else 0.9, mode='hsv')
+        line_2G = Wire(carry_op2, carry_op3, c2, points=(390, 450), width=line_width, joint='round')
+        line_2G.points += [408, 450]
+        line_2G.points += [408, 340]
+        line_2G.points += [430, 340]
+
+        c2 = Color(2. / 7, 0.4, 0.3 if not carry_op else 0.9, mode='hsv')
+        line_2G = Wire(carry_op, carry_op3, c2, points=(265, 330), width=line_width, joint='round')
+        line_2G.points += [305, 330]
+        line_2G.points += [305, 320]
+        line_2G.points += [430, 320]
+
+        c2 = Color(4. / 7, 0.4, 0.3 if not carry_op3 else 0.9, mode='hsv')
         line_2G = Wire(carry_op3, display.bits[0], c2, points=(505, 330), width=line_width, joint='round')
         line_2G.points += [535, 330]
-        line_2G.points += [535, 500]
-        line_2G.points += [690, 500]
-        line_2G.points += [690, 480]
+        line_2G.points += [535, 490]
+        line_2G.points += [690, 490]
+        line_2G.points += [690, 460]
 
-        c2 = Color(4. / 7, 0.4, 0.3 if not sum_op else 0.9, mode='hsv')
-        line_2G = Wire(sum_op2, display.bits[1], c2, points=(505, 510), width=line_width, joint='round')
+        c2 = Color(4. / 7, 0.4, 0.3 if not sum_op2 else 0.9, mode='hsv')
+        line_2G = Wire(sum_op2, display.bits[1], c2, points=(485, 510), width=line_width, joint='round')
         line_2G.points += [730, 510]
-        line_2G.points += [730, 480]
+        line_2G.points += [730, 460]
 
-        # c1 = Color(0, 0.9, 0.3 if not output1 else 0.9, mode='hsv')
-        # line_1G = Wire(display.bits[0], output5, c1, points=(425, 270), width=line_width, joint='round')
-        # line_1G.points += [425, 250]
-        # line_1G.points += [563, 250]
-        # line_1G.points += [563, 160]
-        #
-        # c2 = Color(4. / 7, 0.9, 0.3 if not base else 0.9, mode='hsv')
-        # line_2G = Wire(base, display.base_in, c2, points=(243, 300), width=line_width, joint='round')
-        # line_2G.points += [183, 300]
+        c1 = Color(2. / 7, 0.4, 0.3 if not sum_op else 0.9, mode='hsv')
+        line_1G = Wire(sum_op, carry_gate2, c1, points=(260, 510), width=line_width, joint='round')
+        line_1G.points += [280, 510]
+        line_1G.points += [280, 440]
+        line_1G.points += [320, 440]
 
+        c3 = Color(2. / 7, 0.9, 0.3 if not input3 else 0.9, mode='hsv')
+        line_3G = Wire(input3, carry_gate2, c3, points=(265, 580), width=line_width, joint='round')
+        line_3G.points += [295, 580]
+        line_3G.points += [295, 460]
+        line_3G.points += [320, 460]
+
+        c3 = Color(2. / 7, 0.9, 0.3 if not input3 else 0.9, mode='hsv')
+        line_3G = Wire(input3, sum_gate2, c3, points=(265, 580), width=line_width, joint='round')
+        line_3G.points += [360, 580]
+        line_3G.points += [360, 520]
+        line_3G.points += [400, 520]
+
+        c2 = Color(4. / 7, 0.4, 0.3 if not carry_op3 else 0.9, mode='hsv')
+        line_2G = Wire(carry_op3, carry_out, c2, points=(505, 330), width=line_width, joint='round')
+        line_2G.points += [535, 330]
+        line_2G.points += [535, 245]
+        line_2G.points += [750, 245]
+
+        c2 = Color(4. / 7, 0.9, 0.3 if not base else 0.9, mode='hsv')
+        line_2G = Wire(base, display.base_in, c2, points=(790, 365), width=line_width, joint='round')
+        line_2G.points += [760, 365]
+
+def get_level_HA2(widget):
+    base_default = True
+
+    input1_default = False
+    input2_default = False
+
+    input1 = ToggleInput("A", size_hint=(25. / 960, 80. / 640), center=(100, 520))
+    widget.add_widget(input1)
+    input1.button.state = 'down' if input1_default else 'normal'
+
+    input2 = ToggleInput("B", size_hint=(25. / 960, 80. / 640), center=(100, 320))
+    widget.add_widget(input2)
+    input2.button.state = 'down' if input2_default else 'normal'
+
+    display = NumberDisplay(5, "Display", size_hint=(200. / 960, 100. / 640), center=(600, 400), rows=3)
+    display.display.editable = False
+    widget.add_widget(display)
+
+    base = ToggleInput("bin/dec", size_hint=(25. / 960, 80. / 640), center=(860, 400), rows=3)
+    widget.add_widget(base)
+    base.button.state = 'down' if base_default else 'normal'
+
+    sum_op = boolean.XOR_BGATE(input1, input2, None)
+    sum_gate = BGate(sum_op, size_hint=(100. / 960, 80. / 640), center = (225, 540))
+    sum_gate.replaceable = True
+    widget.add_widget(sum_gate)
+
+    carry_op = boolean.AND_BGATE(input1, input2, None)
+    carry_gate = BGate(carry_op, size_hint=(100. / 960, 80. / 640), center = (225, 360))
+    carry_gate.replaceable = True
+    widget.add_widget(carry_gate)
+
+    sum_op.set_output(display.bits[0])
+    carry_op.set_output(display.bits[1])
+
+    carry_out = BooleanOutput("C_out", size_hint=(25. / 960, 80. / 640), center = (800, 240))
+    carry_op.set_output(carry_out)
+    widget.add_widget(carry_out)
+
+    base.set_output(display.base_in)
+
+    with widget.canvas:
+        line_width = 2.
+
+        c1 = Color(0, 0.9, 0.3 if not input1 else 0.9, mode='hsv')
+        line_1G = Wire(input1, carry_gate, c1, points=(115, 520), width=line_width, joint='round')
+        line_1G.points += [175, 520]
+
+        c1 = Color(0, 0.9, 0.3 if not input1 else 0.9, mode='hsv')
+        line_1G = Wire(input1, sum_gate, c1, points=(115, 520), width=line_width, joint='round')
+        line_1G.points += [155, 520]
+        line_1G.points += [155, 340]
+        line_1G.points += [175, 340]
+
+        c1 = Color(5. / 7, 0.9, 0.3 if not input2 else 0.9, mode='hsv')
+        line_1G = Wire(input2, carry_gate, c1, points=(115, 320), width=line_width, joint='round')
+        line_1G.points += [175, 320]
+
+        c1 = Color(5. / 7, 0.9, 0.3 if not input2 else 0.9, mode='hsv')
+        line_1G = Wire(input2, sum_gate, c1, points=(115, 320), width=line_width, joint='round')
+        line_1G.points += [135, 320]
+        line_1G.points += [135, 500]
+        line_1G.points += [175, 500]
+
+        c1 = Color(2. / 7, 0.4, 0.3 if not sum_op else 0.9, mode='hsv')
+        line_1G = Wire(sum_op, display.bits[1], c1, points=(260, 510), width=line_width, joint='round')
+        line_1G.points += [330, 510]
+        line_1G.points += [730, 510]
+        line_1G.points += [730, 460]
+
+        c2 = Color(4. / 7, 0.4, 0.3 if not carry_op else 0.9, mode='hsv')
+        line_2G = Wire(carry_op, display.bits[0], c2, points=(265, 330), width=line_width, joint='round')
+        line_2G.points += [535, 330]
+        line_2G.points += [535, 490]
+        line_2G.points += [690, 490]
+        line_2G.points += [690, 460]
+
+        c2 = Color(4. / 7, 0.4, 0.3 if not carry_op else 0.9, mode='hsv')
+        line_2G = Wire(carry_op, carry_out, c2, points=(265, 330), width=line_width, joint='round')
+        line_2G.points += [535, 330]
+        line_2G.points += [535, 245]
+        line_2G.points += [750, 245]
+
+        c2 = Color(4. / 7, 0.9, 0.3 if not base else 0.9, mode='hsv')
+        line_2G = Wire(base, display.base_in, c2, points=(790, 365), width=line_width, joint='round')
+        line_2G.points += [760, 365]
 # __all__ = (get_level_2, get_level_3)
